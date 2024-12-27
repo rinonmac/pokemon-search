@@ -166,24 +166,3 @@ export default {
   },
 };
 </script>
-
-<style scoped>
-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-th, td {
-  border: 1px solid #ddd;
-  padding: 8px;
-  text-align: left;
-}
-
-th {
-  background-color: #f7fafc;
-}
-
-button {
-  cursor: pointer;
-}
-</style>
