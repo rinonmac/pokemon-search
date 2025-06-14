@@ -83,86 +83,106 @@
   </div>
 </template>
 
-<script>
+<script setup lang="ts">
 import axios from 'axios';
+import { ref, computed, watch, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 
-export default {
-  props: ['name'],
-  data() {
-    return {
-      pokemon: null,
-      isLoading: true,
-      error: null,
-    };
-  },
-  computed: {
-    bulbapediaUrl() {
-      return `https://bulbapedia.bulbagarden.net/wiki/${this.capitalize(this.pokemon.name)}_(Pokémon)`;
-    },
-  },
-  watch: {
-    name: 'fetchPokemon',
-  },
-  created() {
-    this.fetchPokemon();
-  },
-  methods: {
-    capitalize(value) {
-      if (!value) return '';
-      return value.charAt(0).toUpperCase() + value.slice(1);
-    },
+interface Pokemon {
+  name: string;
+  sprites: {
+    front_default: string;
+  };
+  types: Array<{
+    type: {
+      name: string;
+    }
+  }>;
+  stats: Array<{
+    base_stat: number;
+    stat: {
+      name: string;
+    }
+  }>;
+  moves: Array<{
+    move: {
+      name: string;
+    }
+  }>;
+}
 
-    getTypeColor(type) {
-      const typeColors = {
-        fire: '#F08030',
-        water: '#6890F0',
-        grass: '#78C850',
-        electric: '#F8D030',
-        psychic: '#F85888',
-        ice: '#98D8D8',
-        dragon: '#7038F8',
-        fairy: '#EE99AC',
-        bug: '#A8B820',
-        normal: '#A8A878',
-        ground: '#E0C068',
-        fighting: '#C03028',
-        poison: '#A040A0',
-        dark: '#705848',
-        ghost: '#705898',
-        rock: '#B8A038',
-        steel: '#B8B8D0',
-      };
+const router = useRouter();
+const props = defineProps<{ name: string }>();
 
-      return typeColors[type] || '#A8A878';
-    },
+const pokemon = ref<Pokemon | null>(null);
+const isLoading = ref(true);
+const error = ref<string | null>(null);
 
-    async fetchPokemon() {
-      try {
-        this.isLoading = true;
-        this.error = null;
+const bulbapediaUrl = computed(() => {
+  if (!pokemon.value) return '';
+  return `https://bulbapedia.bulbagarden.net/wiki/${capitalize(pokemon.value.name)}_(Pokémon)`;
+});
 
-        console.log(`Fetching Pokémon data for: https://pokeapi.co/api/v2/pokemon/${this.name}`);
+function capitalize(value: string): string {
+  if (!value) return '';
+  return value.charAt(0).toUpperCase() + value.slice(1);
+}
 
-        const response = await axios.get(`https://pokeapi.co/api/v2/pokemon/${this.name}`);
+function getTypeColor(type: string): string {
+  const typeColors: Record<string, string> = {
+    fire: '#F08030',
+    water: '#6890F0',
+    grass: '#78C850',
+    electric: '#F8D030',
+    psychic: '#F85888',
+    ice: '#98D8D8',
+    dragon: '#7038F8',
+    fairy: '#EE99AC',
+    bug: '#A8B820',
+    normal: '#A8A878',
+    ground: '#E0C068',
+    fighting: '#C03028',
+    poison: '#A040A0',
+    dark: '#705848',
+    ghost: '#705898',
+    rock: '#B8A038',
+    steel: '#B8B8D0',
+  };
 
-        console.log('API Response:', response);
+  return typeColors[type] || '#A8A878';
+}
 
-        if (response.data) {
-          this.pokemon = response.data;
-        } else {
-          this.error = 'Pokémon not found.';
-        }
-      } catch (err) {
-        console.error('Error fetching Pokémon data:', err);
-        this.error = `Error fetching data: ${err.response ? err.response.data : err.message}`;
-      } finally {
-        this.isLoading = false;
-      }
-    },
+async function fetchPokemon() {
+  try {
+    isLoading.value = true;
+    error.value = null;
 
-    goBack() {
-      this.$router.go(-1);
-    },
-  },
-};
+    console.log(`Fetching Pokémon data for: https://pokeapi.co/api/v2/pokemon/${props.name}`);
+
+    const response = await axios.get(`https://pokeapi.co/api/v2/pokemon/${props.name}`);
+
+    console.log('API Response:', response);
+
+    if (response.data) {
+      pokemon.value = response.data;
+    } else {
+      error.value = 'Pokémon not found.';
+    }
+  } catch (err: any) {
+    console.error('Error fetching Pokémon data:', err);
+    error.value = `Error fetching data: ${err.response ? err.response.data : err.message}`;
+  } finally {
+    isLoading.value = false;
+  }
+}
+
+function goBack() {
+  router.go(-1);
+}
+
+// Watch for changes to name prop
+watch(() => props.name, fetchPokemon);
+
+// Fetch pokemon data when component is mounted
+onMounted(fetchPokemon);
 </script>
