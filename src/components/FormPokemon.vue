@@ -13,11 +13,8 @@
           />
           <span v-if="formError" class="text-sm text-red-500">{{ formError }}</span>
         </div>
-        <div class="flex items-center justify-between">
-          <button
-            type="submit"
-            class="px-4 py-2 text-white bg-blue-500 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
+        <div class="flex w-full flex-col">
+          <button type="submit" class="px-4 py-2 text-white bg-blue-500 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
             Search
           </button>
         </div>
@@ -29,29 +26,27 @@
   </div>
 </template>
 
-<script>
-export default {
-  data() {
-    return {
-      pokemonName: "",
-      formError: null,
-      isLoading: false,
-    };
-  },
-  methods: {
-    validateAndFetch() {
-      if (!this.pokemonName.trim()) {
-        this.formError = "This field is required.";
-        return;
-      }
-      this.formError = null;
+<script setup lang="ts">
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 
-      const formattedName = this.pokemonName.toLowerCase().trim();
-      this.$router.push({name: 'pokemon-detail', params: {name: formattedName}});
-    },
-    clearError() {
-      this.formError = null;
-    },
-  },
-};
+const router = useRouter()
+const pokemonName = ref("")
+const formError = ref<string | null>(null)
+const isLoading = ref(false)
+
+function validateAndFetch() {
+  if (!pokemonName.value.trim()) {
+    formError.value = "This field is required."
+    return
+  }
+  formError.value = null
+
+  const formattedName = pokemonName.value.toLowerCase().trim()
+  router.push({name: 'pokemon-detail', params: {name: formattedName}})
+}
+
+function clearError() {
+  formError.value = null
+}
 </script>
