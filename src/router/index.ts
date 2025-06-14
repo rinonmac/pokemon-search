@@ -2,9 +2,10 @@ import { createRouter, createWebHistory } from 'vue-router'
 import pokemonDetail from "@/components/ResultPokemon.vue"
 import FormPokemon from "@/components/FormPokemon.vue"
 
+const BASE_URL = (import.meta as any).env.BASE_URL || ''
 
 const router = createRouter({
-  history: createWebHistory(import.meta.env.BASE_URL),
+  history: createWebHistory(BASE_URL),
   routes: [
     {
       path: '/',
@@ -19,7 +20,5 @@ const router = createRouter({
     }
   ],
 })
-
-
 
 export default router
