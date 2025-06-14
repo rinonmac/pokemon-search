@@ -1,11 +1,10 @@
 import { describe, it, expect } from 'vitest'
-
 import { mount } from '@vue/test-utils'
-import HelloWorld from '../HelloWorld.vue'
+import FormPokemon from '../FormPokemon.vue'
 
-describe('HelloWorld', () => {
+describe('FormPokemon', () => {
   it('renders properly', () => {
-    const wrapper = mount(HelloWorld, { props: { msg: 'Hello Vitest' } })
-    expect(wrapper.text()).toContain('Hello Vitest')
+    const wrapper = mount(FormPokemon)
+    expect(wrapper.find('h2').text()).toContain('Pokémon Search')
   })
 })
